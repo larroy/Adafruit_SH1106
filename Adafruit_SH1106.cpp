@@ -149,28 +149,53 @@ void Adafruit_SH1106::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 }
 
-Adafruit_SH1106::Adafruit_SH1106(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) : Adafruit_GFX(SH1106_LCDWIDTH, SH1106_LCDHEIGHT) {
-  cs = CS;
-  rst = RST;
-  dc = DC;
-  sclk = SCLK;
-  sid = SID;
-  hwSPI = false;
+Adafruit_SH1106::Adafruit_SH1106(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) :
+  Adafruit_GFX(SH1106_LCDWIDTH, SH1106_LCDHEIGHT),
+  cs(CS),
+  rst(RST),
+  dc(DC),
+  sclk(SCLK),
+  sid(SID),
+  hwSPI(false)
+{
 }
 
 // constructor for hardware SPI - we indicate DataCommand, ChipSelect, Reset
-Adafruit_SH1106::Adafruit_SH1106(int8_t DC, int8_t RST, int8_t CS) : Adafruit_GFX(SH1106_LCDWIDTH, SH1106_LCDHEIGHT) {
-  dc = DC;
-  rst = RST;
-  cs = CS;
-  hwSPI = true;
+Adafruit_SH1106::Adafruit_SH1106(int8_t DC, int8_t RST, int8_t CS) : 
+  Adafruit_GFX(SH1106_LCDWIDTH, SH1106_LCDHEIGHT),
+  dc(DC),
+  rst(RST),
+  cs(CS),
+  hwSPI(true)
+{
 }
+
+
+// initializer for I2C - we only indicate the reset pin!
+Adafruit_SH1106::Adafruit_SH1106(int8_t sda, int8_t scl) :
+  Adafruit_GFX(SH1106_LCDWIDTH, SH1106_LCDHEIGHT),
+  sda(sda),
+  scl(scl),
+  sclk(-1),
+  sid(-1),
+  dc(-1),
+  rst(-1),
+  cs(-1)
+{
+}
+
 
 // initializer for I2C - we only indicate the reset pin!
 Adafruit_SH1106::Adafruit_SH1106(int8_t reset) :
-Adafruit_GFX(SH1106_LCDWIDTH, SH1106_LCDHEIGHT) {
-  sclk = dc = cs = sid = -1;
-  rst = reset;
+  Adafruit_GFX(SH1106_LCDWIDTH, SH1106_LCDHEIGHT),
+  sda(SDA),
+  scl(SCL),
+  sclk(-1),
+  sid(-1),
+  dc(-1),
+  rst(reset),
+  cs(-1)
+{
 }
 
 
@@ -211,7 +236,7 @@ void Adafruit_SH1106::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   else
   {
     // I2C Init
-    Wire.begin();
+    Wire.begin(sda, scl);
 #ifdef __SAM3X8E__
     // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
     TWI1->TWI_CWGR = 0;
